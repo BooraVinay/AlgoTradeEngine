@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <head>
+        <title>Place Order</title>
+    </head>
+<body>
+<h1>Test Order Placement</h1>
+<button onclick="placeOrder()">Place Order</button>
+
+<p id="result"></p>
+
+<script>
+    function placeOrder() {
+        fetch('/api/alice/placeOrder', {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = "Error: " + err;
+            });
+    }
+</script>
+</body>
+</html>
