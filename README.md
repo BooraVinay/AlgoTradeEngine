@@ -43,6 +43,7 @@ flowchart TD
 |                      |  │  Results: LTP, OHLC, ... │     |
 |                      |  └──────────────────────────┘     |
 +----------------------+-----------------------------------+
+---
 Example API Responses
 🔑 Login / Profile Response
 {
@@ -134,7 +135,7 @@ Example API Responses
   }
 }
 
-
+---
 
 🚀 Setup
 1. Clone the repo
