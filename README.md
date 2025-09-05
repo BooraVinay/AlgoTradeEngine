@@ -43,7 +43,7 @@ flowchart TD
 +----------------------+-----------------------------------+
 ---
 ## Example API Responses
-🔑 Login / Profile Response
+-  🔑 Login / Profile Response
 {
   "status": true,
   "message": "SUCCESS",
@@ -57,7 +57,7 @@ flowchart TD
     "brokerid": "B2C"
   }
 }
-📊 Holdings Response
+-  📊 Holdings Response
 {
   "status": true,
   "message": "SUCCESS",
@@ -91,7 +91,7 @@ flowchart TD
   }
 }
 
-🔍 Search Scrip Response
+-  🔍 Search Scrip Response
 {
   "status": true,
   "message": "SUCCESS",
@@ -109,7 +109,7 @@ flowchart TD
   ]
 }
 
-📈 Market Quote Response (FULL mode)
+-  📈 Market Quote Response (FULL mode)
 {
   "status": true,
   "message": "SUCCESS",
@@ -137,7 +137,9 @@ flowchart TD
 
 ## 🚀 Setup
 1. Clone the repo
+   
 git clone https://github.com/your-repo/algotrade-bot.git
+
 cd algotrade-bot
 
 ## 2. Configure
