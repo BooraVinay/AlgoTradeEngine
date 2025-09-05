@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Place Order</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+    <div class="logo font-bold text-xl">TradeApp</div>
+    <nav class="space-x-4">
+        <a href="/dashboard" class="hover:underline">Dashboard</a>
+        <a href="/account-info" class="hover:underline">Account Info</a>
+        <a href="/portfolio" class="hover:underline">View Portfolio</a>
+        <a href="/trading-history" class="hover:underline">Trading History</a>
+        <a href="/trade-book" class="hover:underline">Trade Book</a>
+        <a href="/auth/logout" class="hover:underline">Logout</a>
+    </nav>
+</header>
+<div class="flex">
+    <aside class="w-64 bg-white shadow-md p-4">
+        <ul class="space-y-2">
+            <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
+            <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
+            <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
+            <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
+            <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
+        </ul>
+    </aside>
+<main class="p-6 max-w-2xl mx-auto">
+    <h1 class="text-xl font-bold mb-4">Place Order (sample)</h1>
+
+    <!-- For now the controller places a hard-coded sample order when this form posts -->
+    <form th:action="@{/placeOrder}" method="post">
+        <div class="bg-white p-4 rounded shadow space-y-3">
+            <p class="text-sm text-gray-600">This will place a server-side hard-coded sample order. We'll add a full order form later.</p>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Place Sample Order</button>
+        </div>
+    </form>
+
+    <div class="mt-4">
+        <div th:if="${orderResult}" class="p-4 rounded bg-green-50 text-green-800">
+            <p><strong>Order placed:</strong></p>
+            <pre th:text="${#strings.toString(orderResult)}"></pre>
+        </div>
+
+        <div th:if="${orderError}" class="p-4 rounded bg-red-50 text-red-800">
+            <p><strong>Order failed:</strong></p>
+            <p th:text="${orderError}"></p>
+        </div>
+    </div>
+</main>
+</div>
+</body>
+</html>

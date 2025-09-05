@@ -6,21 +6,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AliceBlueService {
     private static final Logger log = LoggerFactory.getLogger(AliceBlueService.class);
+
     @Value("${aliceblue.base-url}")
     private String baseUrl;
-
-    @Value("${aliceblue.user-id}")
-    private String userId;
 
     @Value("${aliceblue.api-key}")
     private String apiKey;
@@ -29,23 +25,20 @@ public class AliceBlueService {
     private String sessionId; // cached session
 
     // Step 1: Get Encryption Key
-    public String getEncryptionKey() {
+    public String getEncryptionKey(String userId) {
         String url = baseUrl + "/customer/getAPIEncpkey";
+        Map<String, String> req = Map.of("userId", userId);
 
-        Map<String, String> request = new HashMap<>();
-        request.put("userId", userId);
+        HttpEntity<Map<String, String>> entity =
+                new HttpEntity<>(req, getJsonHeaders());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        ResponseEntity<Map> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
         if ("Ok".equals(response.getBody().get("stat"))) {
             return (String) response.getBody().get("encKey");
-        } else {
-            throw new RuntimeException("Failed to get encryption key: " + response.getBody().get("emsg"));
         }
+        throw new RuntimeException("Failed to get encKey: " + response.getBody().get("emsg"));
     }
 
     // Step 2: Generate SHA-256
@@ -53,65 +46,50 @@ public class AliceBlueService {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-
-            StringBuilder hexString = new StringBuilder();
+            StringBuilder hex = new StringBuilder();
             for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
+                hex.append(String.format("%02x", b));
             }
-            return hexString.toString();
+            return hex.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate SHA-256 hash", e);
+            throw new RuntimeException("SHA-256 error", e);
         }
     }
 
-    // Step 3: Get Session ID
-    public String generateSessionId() {
-        String encKey = getEncryptionKey();
-        String combinedData = userId + apiKey + encKey;
-        String userData = generateSHA256(combinedData);
+    // Step 3: Generate Session ID
+    public String generateSessionId(String userId) {
+        String encKey = getEncryptionKey(userId);
+        String userData = generateSHA256(userId + apiKey + encKey);
 
         String url = baseUrl + "/customer/getUserSID";
+        Map<String, String> req = Map.of("userId", userId, "userData", userData);
 
-        Map<String, String> request = new HashMap<>();
-        request.put("userId", userId);
-        request.put("userData", userData);
+        HttpEntity<Map<String, String>> entity =
+                new HttpEntity<>(req, getJsonHeaders());
 
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        ResponseEntity<Map> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
         if ("Ok".equals(response.getBody().get("stat"))) {
             sessionId = (String) response.getBody().get("sessionID");
-            log.info("Generated new session ID: {}", sessionId);
+            log.info("Generated broker session {}", sessionId);
             return sessionId;
-        } else {
-            throw new RuntimeException("Failed to get session ID: " + response.getBody().get("emsg"));
         }
+        throw new RuntimeException("Failed to get sessionID: " + response.getBody().get("emsg"));
     }
 
-    // Step 4: Get session ID (cached)
-    public String getSessionId() {
-        if (sessionId == null) {
-            log.info("No cached session, generating new one...");
-            return generateSessionId();
-        }
-        log.info("Using cached session ID: {}", sessionId);
-        return sessionId;
+    // Step 4: Return cached session
+    public String getSessionId(String userId) {
+        return (sessionId == null) ? generateSessionId(userId) : sessionId;
     }
 
-    // Reset session if needed
+    // Reset cached session
     public void resetSession() {
         this.sessionId = null;
     }
 
-
-    public List<Map<String, Object>> placeNormalOrder() {
+    // Place order using cached session
+    public List<Map<String, Object>> placeNormalOrder(String userId) {
         String url = baseUrl + "/placeOrder/executePlaceOrder";
 
         Map<String, Object> order = new HashMap<>();
@@ -128,29 +106,24 @@ public class AliceBlueService {
         order.put("transtype", "BUY");
         order.put("trigPrice", "0.00");
         order.put("orderTag", "order1");
-        order.put("deviceNumber", "sdagds345324dsfgfvasdqwr4");
+        order.put("deviceNumber", "device123");
 
-        List<Map<String, Object>> payload = new ArrayList<>();
-        payload.add(order);
+        List<Map<String, Object>> payload = List.of(order);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(getSessionId());
+        HttpHeaders headers = getJsonHeaders();
+        headers.setBearerAuth(getSessionId(userId));
 
         HttpEntity<List<Map<String, Object>>> entity = new HttpEntity<>(payload, headers);
 
-        try {
-            ResponseEntity<List> response = restTemplate.exchange(url, HttpMethod.POST, entity, List.class);
-            return response.getBody();
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            // Catch HTTP errors (like 401, 400, etc.)
-            log.error("Error placing order: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Failed to place order: " + e.getResponseBodyAsString());
-        } catch (Exception e) {
-            // Catch any other errors
-            log.error("Unexpected error placing order", e);
-            throw new RuntimeException("Unexpected error placing order: " + e.getMessage());
-        }
+        ResponseEntity<List> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, List.class);
+
+        return response.getBody();
     }
 
+    private HttpHeaders getJsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
 }

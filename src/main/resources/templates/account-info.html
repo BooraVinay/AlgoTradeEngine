@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Account Info</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+  <div class="logo font-bold text-xl">TradeApp</div>
+  <nav class="space-x-4">
+    <a href="/dashboard" class="hover:underline">Dashboard</a>
+    <a href="/place-order" class="hover:underline">Place Order</a>
+    <a href="/trading-history" class="hover:underline">Trading History</a>
+    <a href="/trade-book" class="hover:underline">Trade Book</a>
+    <a href="/auth/logout" class="hover:underline">Logout</a>
+  </nav>
+</header>
+<div class="flex">
+<aside class="w-64 bg-white shadow-md p-4">
+  <ul class="space-y-2">
+    <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
+    <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
+    <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
+    <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
+    <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
+  </ul>
+</aside>
+
+<main class="p-6">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-xl font-bold mb-4">Account Info — <span th:text="${clientCode}">-</span></h1>
+
+    <div class="bg-white p-4 rounded shadow">
+      <p><strong>Name:</strong> <span th:text="${profile.name}">-</span></p>
+      <p><strong>Client Code:</strong> <span th:text="${profile.clientcode}">-</span></p>
+      <p><strong>Email:</strong> <span th:text="${profile.email != null && profile.email != '' ? profile.email : '-'}">-</span></p>
+      <p><strong>Mobile:</strong> <span th:text="${profile.mobileno != null && profile.mobileno != '' ? profile.mobileno : '-'}">-</span></p>
+      <p><strong>Exchanges:</strong> <span th:text="${profile.exchanges}">-</span></p>
+      <p><strong>Products:</strong> <span th:text="${profile.products}">-</span></p>
+    </div>
+
+   <!-- <div class="mt-4">
+      <form th:action="@{/api/angel/profile}" method="get">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded">Refresh Profile (server)</button>
+      </form>
+    </div>-->
+
+    <div class="mt-6">
+      <h2 class="font-semibold mb-2">Margins / RMS</h2>
+      <div th:if="${rms != null}" class="bg-white p-4 rounded shadow">
+        <p><strong>Available Cash:</strong> <span th:text="${rms.data.availablecash}">-</span></p>
+        <p><strong>Net:</strong> <span th:text="${rms.data.net}">-</span></p>
+      </div>
+      <div th:if="${rms == null}" class="text-gray-500">RMS data not available.</div>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>

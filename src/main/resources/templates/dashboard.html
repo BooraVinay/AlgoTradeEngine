@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+    <div class="logo font-bold text-xl">TradeApp</div>
+    <nav class="space-x-4">
+        <a href="/account-info" class="hover:underline">Account Info</a>
+        <a href="/portfolio" class="hover:underline">View Portfolio</a>
+        <a href="/place-order" class="hover:underline">Place Order</a>
+        <a href="/trading-history" class="hover:underline">Trading History</a>
+        <a href="/trade-book" class="hover:underline">Trade Book</a>
+        <a href="/auth/logout" class="hover:underline">Logout</a>
+    </nav>
+</header>
+
+<div class="flex">
+    <aside class="w-64 bg-white shadow-md p-4">
+        <ul class="space-y-2">
+            <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
+            <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
+            <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
+            <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
+            <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
+        </ul>
+    </aside>
+
+    <section class="flex-1 p-6">
+        <h2 class="text-2xl font-semibold mb-4">Welcome, <span th:text="${profile.name}">-</span></h2>
+
+        <div class="bg-white shadow p-4 rounded">
+            <h3 class="font-semibold text-lg">Account Summary</h3>
+            <p><strong>Client Code:</strong> <span th:text="${clientCode}">-</span></p>
+            <p><strong>Email:</strong> <span th:text="${profile.email != null && profile.email != '' ? profile.email : '-'}">-</span></p>
+            <p><strong>Mobile:</strong> <span th:text="${profile.mobileno != null && profile.mobileno != '' ? profile.mobileno : '-'}">-</span></p>
+            <p><strong>Products:</strong> <span th:text="${profile.products}">-</span></p>
+        </div>
+    </section>
+</div>
+</body>
+</html>
