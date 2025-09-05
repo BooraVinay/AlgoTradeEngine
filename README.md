@@ -15,8 +15,6 @@ It provides a simple **web interface** for login, portfolio view, and stock sear
 ---
 
 ## 🏗️ Architecture (Mermaid Diagram)
-
-```mermaid
 flowchart TD
     A[Browser - User UI] --> B[Spring Boot Controllers]
     B --> C[AngelOneService]
@@ -44,7 +42,7 @@ flowchart TD
 |                      |  └──────────────────────────┘     |
 +----------------------+-----------------------------------+
 ---
-Example API Responses
+## Example API Responses
 🔑 Login / Profile Response
 {
   "status": true,
@@ -137,26 +135,26 @@ Example API Responses
 
 ---
 
-🚀 Setup
+## 🚀 Setup
 1. Clone the repo
 git clone https://github.com/your-repo/algotrade-bot.git
 cd algotrade-bot
 
-2. Configure
+## 2. Configure
 
 Update application.properties with your AngelOne API credentials:
 angelone.api.key=YOUR_API_KEY
 angelone.client.id=YOUR_CLIENT_ID
 angelone.secret=YOUR_SECRET
 
-3. Run the app
+## 3. Run the app
 mvn spring-boot:run
 4. Access the UI
 
 Open in browser:
 http://localhost:8080/
 
-🔮 Roadmap
+## 🔮 Roadmap
 
 Add order placement (Buy/Sell)
 
