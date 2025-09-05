@@ -138,28 +138,28 @@ flowchart TD
 ## 🚀 Setup
 1. Clone the repo
    
-git clone https://github.com/your-repo/algotrade-bot.git
+- git clone https://github.com/your-repo/algotrade-bot.git
 
-cd algotrade-bot
+-  cd algotrade-bot
 
 ## 2. Configure
 
 Update application.properties with your AngelOne API credentials:
-angelone.api.key=YOUR_API_KEY
-angelone.client.id=YOUR_CLIENT_ID
-angelone.secret=YOUR_SECRET
+- angelone.api.key=YOUR_API_KEY
+- angelone.client.id=YOUR_CLIENT_ID
+- angelone.secret=YOUR_SECRET
 
 ## 3. Run the app
-mvn spring-boot:run
+- mvn spring-boot:run
+  
 4. Access the UI
-
 Open in browser:
-http://localhost:8080/
+- http://localhost:8080/
 
 ## 🔮 Roadmap
 
-Add order placement (Buy/Sell)
+- Add order placement (Buy/Sell)
 
-Add Websocket streaming for live tick updates
+- Add Websocket streaming for live tick updates
 
-Add alerts/notifications
+- Add alerts/notifications
