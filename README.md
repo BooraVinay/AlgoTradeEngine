@@ -152,7 +152,7 @@ Update application.properties with your AngelOne API credentials:
 ## 3. Run the app
 - mvn spring-boot:run
   
-4. Access the UI
+## 4. Access the UI
 Open in browser:
 - http://localhost:8080/
 
