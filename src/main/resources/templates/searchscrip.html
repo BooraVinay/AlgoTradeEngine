@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Search Scrip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<header class="bg-blue-600 text-white py-4">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+    <div class="text-xl font-bold">TradeApp</div>
+    <nav class="space-x-4 text-sm">
+      <a href="/dashboard" class="hover:underline">Dashboard</a>
+      <a href="/account-info" class="hover:underline">Account Info</a>
+      <a href="/portfolio" class="hover:underline">View Portfolio</a>
+      <a href="/place-order" class="hover:underline">Place Order</a>
+      <a href="/trading-history" class="hover:underline">Trading History</a>
+      <a href="/trade-book" class="hover:underline">Trade Book</a>
+      <a href="/alerts/today" class="hover:underline">Alerts</a>
+      <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+      <a href="/auth/logout" class="hover:underline">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<main class="py-12">
+  <div class="max-w-2xl mx-auto px-4">
+    <h2 class="text-2xl font-semibold mb-4">Search Scrip</h2>
+
+    <form th:action="@{/scrip/search}" method="get" class="mb-4 flex gap-2">
+      <input name="ticker" required placeholder="Enter ticker (e.g., SBIN)"
+             class="flex-1 border p-2 rounded focus:ring-2 focus:ring-blue-200"/>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Search</button>
+    </form>
+
+    <div th:if="${results != null}">
+      <div th:if="${#lists.isEmpty(results)}" class="text-gray-500">No equity scrip found.</div>
+
+      <div th:if="${!#lists.isEmpty(results)}" class="bg-white rounded shadow overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2">Symbol</th>
+            <th class="px-4 py-2">Token</th>
+            <th class="px-4 py-2">Exchange</th>
+            <th class="px-4 py-2">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="s : ${results}" class="hover:bg-gray-50">
+            <td class="px-4 py-2" th:text="${s.tradingsymbol}">-</td>
+            <td class="px-4 py-2" th:text="${s.symboltoken}">-</td>
+            <td class="px-4 py-2" th:text="${s.exchange}">-</td>
+            <td class="px-4 py-2">
+              <a th:href="@{/place-order(tradingsymbol=${s.tradingsymbol},symboltoken=${s.symboltoken})}"
+                 class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Use</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div th:if="${error}" class="mt-4 text-red-600" th:text="${error}"></div>
+  </div>
+</main>
+</body>
+</html>

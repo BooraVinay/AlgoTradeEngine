@@ -2,67 +2,184 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>Trading History — Orders</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Trading History</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CSRF meta (Spring Security) -->
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf != null}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf != null}" />
+
+    <script>
+        function getCsrf() {
+            const tokenMeta = document.querySelector('meta[name="_csrf"]');
+            const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+            return tokenMeta && headerMeta ? { header: headerMeta.getAttribute('content'), token: tokenMeta.getAttribute('content') } : null;
+        }
+
+        async function cancelOrder(button) {
+            const orderId = button.dataset.orderid;
+            if (!orderId) return showActionMsg("Invalid order id", "error");
+
+            if (!confirm(`Cancel ${orderId} ?`)) return;
+
+            button.disabled = true;
+            const original = button.innerText;
+            button.innerText = "Cancelling...";
+
+            const csrf = getCsrf();
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrf) headers[csrf.header] = csrf.token;
+
+            try {
+                const resp = await fetch('/orders/cancel', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ orderId })
+                });
+                const data = await resp.json().catch(() => ({}));
+
+                if (resp.ok && data.success) {
+                    showActionMsg("Order cancelled successfully", "success");
+                    // refresh row (simple approach: reload page)
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showActionMsg("Cancel failed: " + (data.error || data.message || "Unknown"), "error");
+                    button.disabled = false;
+                    button.innerText = original;
+                }
+            } catch (err) {
+                showActionMsg("Error: " + err.message, "error");
+                button.disabled = false;
+                button.innerText = original;
+            }
+        }
+
+        function showActionMsg(text, type) {
+            const container = document.getElementById('actionMsg');
+            container.classList.remove('hidden', 'bg-green-50', 'border-green-500', 'text-green-800', 'bg-red-50', 'border-red-500', 'text-red-700');
+            if (type === 'success') {
+                container.classList.add('bg-green-50', 'border-l-4', 'border-green-500', 'text-green-800');
+            } else {
+                container.classList.add('bg-red-50', 'border-l-4', 'border-red-500', 'text-red-700');
+            }
+            container.innerText = text;
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-    <div class="logo font-bold text-xl">TradeApp</div>
-    <nav class="space-x-4">
-        <a href="/dashboard" class="hover:underline">Dashboard</a>
-        <a href="/place-order" class="hover:underline">Place Order</a>
-        <a href="/trade-book" class="hover:underline">Trade Book</a>
-        <a href="/auth/logout" class="hover:underline">Logout</a>
-    </nav>
-</header>
-<div class="flex">
-    <aside class="w-64 bg-white shadow-md p-4">
-        <ul class="space-y-2">
-            <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
-            <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
-            <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
-            <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
-            <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
-        </ul>
-    </aside>
-<main class="p-6">
-    <h1 class="text-xl font-bold mb-4">Order Book</h1>
-
-    <div th:if="${orderBook == null}">
-        <p class="text-gray-500">No order book data available.</p>
+<header class="bg-blue-600 text-white py-4">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+        <div class="text-xl font-bold">TradeApp</div>
+        <nav class="space-x-4 text-sm">
+            <a href="/dashboard" class="hover:underline">Dashboard</a>
+            <a href="/account-info" class="hover:underline">Account Info</a>
+            <a href="/portfolio" class="hover:underline">View Portfolio</a>
+            <a href="/place-order" class="hover:underline">Place Order</a>
+            <a href="/trading-history" class="hover:underline font-semibold underline">Trading History</a>
+            <a href="/trade-book" class="hover:underline">Trade Book</a>
+            <a href="/alerts/today" class="hover:underline">Alerts</a>
+            <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+            <a href="/auth/logout" class="hover:underline">Logout</a>
+        </nav>
     </div>
+</header>
 
-    <div th:if="${orderBook != null}">
-        <div th:if="${orderBook.data != null and #lists.isEmpty(orderBook.data) == false}">
-            <table class="min-w-full bg-white">
-                <thead>
-                <tr>
-                    <th class="p-2 text-left">Order ID</th>
-                    <th class="p-2 text-left">Symbol</th>
-                    <th class="p-2 text-left">Qty</th>
-                    <th class="p-2 text-left">Price</th>
-                    <th class="p-2 text-left">Status</th>
-                    <th class="p-2 text-left">Time</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="o : ${orderBook.data}">
-                    <td class="p-2" th:text="${o.orderid}">-</td>
-                    <td class="p-2" th:text="${o.tradingsymbol}">-</td>
-                    <td class="p-2" th:text="${o.quantity}">-</td>
-                    <td class="p-2" th:text="${o.price}">-</td>
-                    <td class="p-2" th:text="${o.orderstatus}">-</td>
-                    <td class="p-2" th:text="${o.updatetime}">-</td>
-                </tr>
-                </tbody>
-            </table>
+<main class="py-12">
+    <div class="max-w-6xl mx-auto px-4">
+
+        <!-- Inline action message container -->
+        <div id="actionMsg" class="hidden p-4 rounded mb-6"></div>
+
+        <!-- Success flash (server-side) -->
+        <div th:if="${orderId}" class="mb-6 p-4 rounded bg-green-50 border-l-4 border-green-400 text-green-800">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="font-semibold" th:text="${statusMessage}">Order placed successfully!</p>
+                    <p class="text-sm">Order ID: <span th:text="${orderId}">100924d02171AO</span></p>
+                </div>
+                <div>
+                    <a href="/place-order" class="px-3 py-1 bg-white rounded text-sm hover:bg-gray-100">Place another</a>
+                </div>
+            </div>
+            <details class="mt-3">
+                <summary class="text-sm text-gray-700 cursor-pointer">View raw response</summary>
+                <pre class="mt-2 text-xs bg-white p-3 rounded border" th:text="${#strings.toString(orderResult)}"></pre>
+            </details>
         </div>
 
-        <div th:if="${orderBook.data == null or #lists.isEmpty(orderBook.data)}">
-            <p class="text-gray-500">No orders found.</p>
+        <!-- Server-side error flash -->
+        <div th:if="${orderError}" class="mb-6 p-4 rounded bg-red-50 border-l-4 border-red-500 text-red-700">
+            <p th:text="${orderError}">Order failed.</p>
+        </div>
+
+        <!-- Order Book table -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Order Book</h2>
+                <form action="/trading-history" method="get">
+                    <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Refresh</button>
+                </form>
+            </div>
+
+            <div th:if="${orderBook == null}" class="text-gray-500">No order book data available.</div>
+
+            <div th:if="${orderBook != null}">
+                <div th:if="${orderBook.data != null and #lists.isEmpty(orderBook.data) == false}" class="overflow-x-auto">
+                    <table class="min-w-full table-auto border">
+                        <thead class="bg-gray-100 text-gray-700 text-sm">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Order ID</th>
+                            <th class="px-4 py-2 text-left">Symbol</th>
+                            <th class="px-4 py-2 text-left">Qty</th>
+                            <th class="px-4 py-2 text-left">Price</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                            <th class="px-4 py-2 text-left">Time</th>
+                            <th class="px-4 py-2 text-left">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                        <tr th:each="o : ${orderBook.data}" class="hover:bg-gray-50 border-t">
+                            <td class="px-4 py-2" th:text="${o.orderid}">-</td>
+                            <td class="px-4 py-2" th:text="${o.tradingsymbol}">-</td>
+                            <td class="px-4 py-2" th:text="${o.quantity}">-</td>
+                            <td class="px-4 py-2" th:text="${o.price}">-</td>
+                            <td class="px-4 py-2 font-medium"
+                                th:classappend="${o.orderstatus == 'open'} ? 'text-blue-600' :
+                                  (${o.orderstatus == 'cancelled'} ? 'text-red-600' :
+                                  (${o.orderstatus == 'complete'} ? 'text-green-600' : ''))"
+                                th:text="${o.orderstatus}">-</td>
+                            <td class="px-4 py-2" th:text="${o.updatetime}">-</td>
+                            <td class="px-4 py-2">
+                                <div class="space-x-2">
+                                    <button type="button"
+                                            th:if="${o.orderstatus == 'open'}"
+                                            th:attr="data-orderid=${o.orderid}"
+                                            onclick="cancelOrder(this)"
+                                            class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">
+                                        Cancel
+                                    </button>
+
+                                    <a th:if="${o.orderstatus == 'open'}"
+                                       th:href="@{/orders/modify(orderId=${o.orderid},uniqueOrderId=${o.uniqueorderid})}"
+                                       class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">
+                                        Modify
+                                    </a>
+
+                                    <span th:if="${o.orderstatus != 'open'}" class="text-gray-400 text-xs">—</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${orderBook.data == null or #lists.isEmpty(orderBook.data)}"
+                     class="text-gray-500 text-center py-4">No orders found.</div>
+            </div>
         </div>
     </div>
 </main>
-</div>
 </body>
 </html>

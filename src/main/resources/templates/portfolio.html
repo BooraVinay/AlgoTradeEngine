@@ -2,87 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Portfolio</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-  <div class="logo font-bold text-xl">TradeApp</div>
-  <nav class="space-x-4">
-    <a href="/dashboard" class="hover:underline">Dashboard</a>
-    <a href="/account-info" class="hover:underline">Account Info</a>
-    <a href="/portfolio" class="hover:underline">View Portfolio</a>
-    <a href="/place-order" class="hover:underline">Place Order</a>
-    <a href="/trading-history" class="hover:underline">Trading History</a>
-    <a href="/trade-book" class="hover:underline">Trade Book</a>
-    <a href="/auth/logout" class="hover:underline">Logout</a>
-  </nav>
+<header class="bg-blue-600 text-white py-4">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+    <div class="text-xl font-bold">TradeApp</div>
+    <nav class="space-x-4 text-sm">
+      <a href="/dashboard" class="hover:underline">Dashboard</a>
+      <a href="/account-info" class="hover:underline">Account Info</a>
+      <a href="/portfolio" class="hover:underline">View Portfolio</a>
+      <a href="/place-order" class="hover:underline">Place Order</a>
+      <a href="/trading-history" class="hover:underline">Trading History</a>
+      <a href="/trade-book" class="hover:underline">Trade Book</a>
+      <a href="/alerts/today" class="hover:underline">Alerts</a>
+      <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+      <a href="/auth/logout" class="hover:underline">Logout</a>
+    </nav>
+  </div>
 </header>
 
-<div class="flex">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-md p-4">
-    <ul class="space-y-2">
-      <li><a href="/dashboard" class="block hover:bg-gray-100 p-2 rounded">Dashboard</a></li>
-      <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
-      <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded font-semibold text-blue-600">View Portfolio</a></li>
-      <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
-      <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
-      <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
-    </ul>
-  </aside>
-
-  <!-- Main Content -->
-  <section class="flex-1 p-6">
+<main class="py-12">
+  <div class="max-w-5xl mx-auto px-4">
     <h2 class="text-2xl font-semibold mb-4">Portfolio</h2>
 
-    <!-- Error Message -->
-    <div th:if="${errorMessage}" class="bg-red-100 text-red-700 p-3 rounded mb-4">
-      <p th:text="${errorMessage}"></p>
-    </div>
+    <div th:if="${errorMessage}" class="bg-red-100 text-red-700 p-3 rounded mb-4" th:text="${errorMessage}"></div>
 
-    <!-- Summary -->
-    <div th:if="${holdings != null}" class="mb-6">
-      <h3 class="text-xl font-semibold mb-2">Summary</h3>
-      <div class="bg-white shadow p-4 rounded">
-        <p><strong>Total Holding Value:</strong> <span th:text="${holdings.data.totalholding.totalholdingvalue}">-</span></p>
-        <p><strong>Total Investment:</strong> <span th:text="${holdings.data.totalholding.totalinvvalue}">-</span></p>
-        <p><strong>Total PnL:</strong> <span th:text="${holdings.data.totalholding.totalprofitandloss}">-</span></p>
-        <p><strong>Total PnL %:</strong> <span th:text="${holdings.data.totalholding.totalpnlpercentage}">-</span></p>
+    <div th:if="${holdings != null}" class="bg-white rounded shadow p-6 mb-6">
+      <h3 class="text-lg font-semibold mb-3">Summary</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="text-sm text-gray-600">Total Holding Value</div>
+        <div class="font-medium" th:text="${holdings.data.totalholding.totalholdingvalue}">-</div>
+
+        <div class="text-sm text-gray-600">Total Investment</div>
+        <div class="font-medium" th:text="${holdings.data.totalholding.totalinvvalue}">-</div>
+
+        <div class="text-sm text-gray-600">Total PnL</div>
+        <div class="font-medium" th:text="${holdings.data.totalholding.totalprofitandloss}">-</div>
+
+        <div class="text-sm text-gray-600">Total PnL %</div>
+        <div class="font-medium" th:text="${holdings.data.totalholding.totalpnlpercentage}">-</div>
       </div>
     </div>
 
-    <!-- Holdings Table -->
-    <div th:if="${holdings != null}">
-      <h3 class="text-xl font-semibold mb-2">Holdings</h3>
-      <div class="overflow-x-auto bg-white shadow rounded">
-        <table class="min-w-full border border-gray-200">
-          <thead class="bg-gray-100">
-          <tr>
-            <th class="px-4 py-2 border">Symbol</th>
-            <th class="px-4 py-2 border">Exchange</th>
-            <th class="px-4 py-2 border">Quantity</th>
-            <th class="px-4 py-2 border">Avg Price</th>
-            <th class="px-4 py-2 border">LTP</th>
-            <th class="px-4 py-2 border">PnL</th>
-            <th class="px-4 py-2 border">PnL %</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="h : ${holdings.data.holdings}" class="hover:bg-gray-50">
-            <td class="px-4 py-2 border" th:text="${h.tradingsymbol}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.exchange}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.quantity}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.averageprice}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.ltp}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.profitandloss}">-</td>
-            <td class="px-4 py-2 border" th:text="${h.pnlpercentage}">-</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    <div th:if="${holdings != null}" class="bg-white rounded shadow p-4 overflow-x-auto">
+      <h3 class="text-lg font-semibold mb-3">Holdings</h3>
+      <table class="min-w-full table-auto">
+        <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2">Symbol</th>
+          <th class="px-4 py-2">Exchange</th>
+          <th class="px-4 py-2">Quantity</th>
+          <th class="px-4 py-2">Avg Price</th>
+          <th class="px-4 py-2">LTP</th>
+          <th class="px-4 py-2">PnL</th>
+          <th class="px-4 py-2">PnL %</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="h : ${holdings.data.holdings}" class="hover:bg-gray-50">
+          <td class="px-4 py-2" th:text="${h.tradingsymbol}">-</td>
+          <td class="px-4 py-2" th:text="${h.exchange}">-</td>
+          <td class="px-4 py-2" th:text="${h.quantity}">-</td>
+          <td class="px-4 py-2" th:text="${h.averageprice}">-</td>
+          <td class="px-4 py-2" th:text="${h.ltp}">-</td>
+          <td class="px-4 py-2" th:text="${h.profitandloss}">-</td>
+          <td class="px-4 py-2" th:text="${h.pnlpercentage}">-</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-  </section>
-</div>
+
+  </div>
+</main>
 </body>
 </html>

@@ -2,44 +2,77 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-    <div class="logo font-bold text-xl">TradeApp</div>
-    <nav class="space-x-4">
-        <a href="/account-info" class="hover:underline">Account Info</a>
-        <a href="/portfolio" class="hover:underline">View Portfolio</a>
-        <a href="/place-order" class="hover:underline">Place Order</a>
-        <a href="/trading-history" class="hover:underline">Trading History</a>
-        <a href="/trade-book" class="hover:underline">Trade Book</a>
-        <a href="/auth/logout" class="hover:underline">Logout</a>
-    </nav>
+
+<header class="bg-blue-600 text-white py-4">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+        <div class="text-xl font-bold">TradeApp</div>
+        <nav class="space-x-4 text-sm">
+            <a href="/dashboard" class="hover:underline">Dashboard</a>
+            <a href="/account-info" class="hover:underline">Account Info</a>
+            <a href="/portfolio" class="hover:underline">View Portfolio</a>
+            <a href="/place-order" class="hover:underline">Place Order</a>
+            <a href="/trading-history" class="hover:underline">Trading History</a>
+            <a href="/trade-book" class="hover:underline">Trade Book</a>
+            <a href="/alerts/today" class="hover:underline">Alerts</a>
+            <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+            <a href="/auth/logout" class="hover:underline">Logout</a>
+        </nav>
+    </div>
 </header>
 
-<div class="flex">
-    <aside class="w-64 bg-white shadow-md p-4">
-        <ul class="space-y-2">
-            <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
-            <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
-            <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
-            <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
-            <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
-        </ul>
-    </aside>
+<main class="min-h-[calc(100vh-72px)] flex items-center justify-center">
+    <div class="w-full max-w-4xl px-6">
 
-    <section class="flex-1 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Welcome, <span th:text="${profile.name}">-</span></h2>
-
-        <div class="bg-white shadow p-4 rounded">
-            <h3 class="font-semibold text-lg">Account Summary</h3>
-            <p><strong>Client Code:</strong> <span th:text="${clientCode}">-</span></p>
-            <p><strong>Email:</strong> <span th:text="${profile.email != null && profile.email != '' ? profile.email : '-'}">-</span></p>
-            <p><strong>Mobile:</strong> <span th:text="${profile.mobileno != null && profile.mobileno != '' ? profile.mobileno : '-'}">-</span></p>
-            <p><strong>Products:</strong> <span th:text="${profile.products}">-</span></p>
+        <div class="mb-8 flex justify-center gap-4">
+            <a href="/place-order" class="px-5 py-3 bg-white rounded-lg shadow-sm hover:shadow-md flex items-center gap-2">
+                <span class="font-medium text-gray-800">Place Order</span>
+            </a>
+            <a href="/trading-history" class="px-5 py-3 bg-blue-600 rounded-lg text-white hover:bg-blue-700 flex items-center gap-2">
+                <span class="font-medium">Trading History</span>
+            </a>
         </div>
-    </section>
-</div>
+
+        <div class="mx-auto max-w-2xl bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-4">Account Summary</h3>
+            <div class="grid grid-cols-1 gap-3">
+                <div class="flex justify-between">
+                    <div class="text-sm text-gray-600">Client Code</div>
+                    <div class="font-medium" th:text="${clientCode}">-</div>
+                </div>
+
+                <div class="flex justify-between">
+                    <div class="text-sm text-gray-600">Name</div>
+                    <div class="font-medium" th:text="${profile.name ?: '-'}">-</div>
+                </div>
+
+                <div class="flex justify-between">
+                    <div class="text-sm text-gray-600">Email</div>
+                    <div class="font-medium" th:text="${profile.email != null && profile.email != '' ? profile.email : '-'}">-</div>
+                </div>
+
+                <div class="flex justify-between">
+                    <div class="text-sm text-gray-600">Products</div>
+                    <div class="font-medium" th:text="${profile.products ?: '-'}">-</div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center gap-3">
+                <a href="/place-order" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Place Order</a>
+                <a href="/portfolio" class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">View Portfolio</a>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+            Welcome to TradeApp — quick links above let you place orders and review history.
+        </div>
+
+    </div>
+</main>
+
 </body>
 </html>

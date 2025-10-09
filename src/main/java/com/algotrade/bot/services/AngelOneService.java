@@ -8,7 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import com.algotrade.bot.model.*;
 import java.util.*;
 
 
@@ -33,6 +33,7 @@ public class AngelOneService {
     @Value("${angel.macAddress:00:00:00:00:00:00}")
     private String macAddress;
 
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     // Endpoints
@@ -50,6 +51,9 @@ public class AngelOneService {
     private static final String LOGOUT_URL = BASE_URL + "/secure/angelbroking/user/v1/logout";
     private static final String GET_ALL_HOLDING_URL = BASE_URL + "/secure/angelbroking/portfolio/v1/getAllHolding";
 
+
+    private static final String SEARCH_SCRIP_URL = BASE_URL + "/secure/angelbroking/order/v1/searchScrip";
+    private static final String INTRADAY_NSE_URL = BASE_URL + "/secure/angelbroking/marketData/v1/nseIntraday";
     // -----------------------
     // AUTH
     // -----------------------
@@ -328,11 +332,97 @@ public class AngelOneService {
         // Usually the API wraps data under "data" — return the whole body so caller can inspect status/message/data
         return body;
     }
+    /**
+     * Search for a single scrip by ticker (equity only)
+     */
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> searchScrip(HttpSession session, String searchTicker) {
+        ensureJwt(session);
 
+        Map<String, String> payload = new HashMap<>();
+        payload.put("exchange", "NSE");
+        payload.put("searchscrip", searchTicker.toUpperCase());
 
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(payload, authHeaders(session));
+
+        try {
+            ResponseEntity<Map> resp = restTemplate.exchange(SEARCH_SCRIP_URL, HttpMethod.POST, entity, Map.class);
+            Map<String, Object> body = resp.getBody();
+            if (body != null && Boolean.TRUE.equals(body.get("status"))) {
+                List<Map<String, Object>> data = (List<Map<String, Object>>) body.get("data");
+                if (data == null) return Collections.emptyList();
+
+                // Filter for equity only
+                List<Map<String, Object>> eqList = new ArrayList<>();
+                for (Map<String, Object> scrip : data) {
+                    String symbol = (String) scrip.get("tradingsymbol");
+                    if (symbol != null && symbol.toUpperCase().endsWith("-EQ")) {
+                        eqList.add(scrip);
+                    }
+                }
+                return eqList;
+            } else {
+                throw new RuntimeException("searchScrip failed: " + (body != null ? body.get("message") : "unknown"));
+            }
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("searchScrip HTTP error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), e);
+        }
+    }
+    /**
+     * Get allowed NSE intraday scrips
+     */
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getAllowedIntradayScrips(HttpSession session) {
+        ensureJwt(session);
+
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(session));
+        try {
+            ResponseEntity<Map> resp = restTemplate.exchange(INTRADAY_NSE_URL, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> body = resp.getBody();
+            if (body != null && Boolean.TRUE.equals(body.get("status"))) {
+                return (List<Map<String, Object>>) body.get("data");
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("getAllowedIntradayScrips HTTP error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), e);
+        }
+    }
     // -----------------------
     // LOGOUT
     // -----------------------
+    /**
+     * Search scrip in NSE/BSE (returns first EQ instrument)
+     */
+    public Scrip searchScrip(HttpSession session, String exchange, String ticker) {
+        ensureJwt(session);
+
+        Map<String, String> payload = Map.of(
+                "exchange", exchange,
+                "searchscrip", ticker.toUpperCase()
+        );
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, authHeaders(session));
+        ResponseEntity<Map> response = restTemplate.exchange(SEARCH_SCRIP_URL, HttpMethod.POST, request, Map.class);
+        Map<String, Object> body = response.getBody();
+
+        if (body != null && Boolean.TRUE.equals(body.get("status"))) {
+            List<Map<String, Object>> data = (List<Map<String, Object>>) body.get("data");
+            if (data != null && !data.isEmpty()) {
+                for (Map<String, Object> item : data) {
+                    String sym = (String) item.get("tradingsymbol");
+                    if (sym != null && sym.endsWith("-EQ")) {
+                        Scrip scrip = new Scrip();
+                        scrip.setExchange(exchange);
+                        scrip.setTradingsymbol(sym);
+                        scrip.setSymboltoken(String.valueOf(item.get("symboltoken")));
+                        return scrip;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     public void logout(HttpSession session) {
         String clientCode = (String) session.getAttribute("clientCode");

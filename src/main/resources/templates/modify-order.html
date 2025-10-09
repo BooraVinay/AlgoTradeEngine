@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Modify Order</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+<header class="bg-blue-600 text-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold">TradeApp</div>
+        <nav class="space-x-4 text-sm">
+            <a href="/dashboard" class="hover:underline">Dashboard</a>
+            <a href="/account-info" class="hover:underline">Account Info</a>
+            <a href="/portfolio" class="hover:underline">View Portfolio</a>
+            <a href="/place-order" class="hover:underline">Place Order</a>
+            <a href="/trading-history" class="hover:underline">Trading History</a>
+            <a href="/trade-book" class="hover:underline">Trade Book</a>
+            <a href="/alerts/today" class="hover:underline">Alerts</a>
+            <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+            <a href="/auth/logout" class="hover:underline">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="flex-grow flex items-start justify-center p-6">
+    <div class="w-full max-w-2xl bg-white shadow rounded p-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">Modify Order</h1>
+
+        <div th:if="${modifySuccess}" class="mb-4 p-3 rounded bg-green-50 border-l-4 border-green-500 text-green-800">
+            <p th:text="${modifySuccess}">Order modified successfully.</p>
+            <div th:if="${modifyResult}" class="mt-2 text-xs text-gray-700"><pre th:text="${#strings.toString(modifyResult)}"></pre></div>
+        </div>
+
+        <div th:if="${modifyError}" class="mb-4 p-3 rounded bg-red-50 border-l-4 border-red-500 text-red-700">
+            <p th:text="${modifyError}">Modification failed.</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded border mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-sm text-gray-600">Order ID</div>
+                <div class="font-medium" th:text="${orderId}">-</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">Symbol</div>
+                <div class="font-medium" th:text="${tradingsymbol}">-</div>
+            </div>
+        </div>
+
+        <form th:action="@{/orders/modify-form}" method="post" class="space-y-4">
+            <input type="hidden" name="orderId" th:value="${orderId}"/>
+            <input type="hidden" name="uniqueOrderId" th:value="${uniqueOrderId}"/>
+            <input type="hidden" name="tradingsymbol" th:value="${tradingsymbol}"/>
+            <input type="hidden" name="exchange" th:value="${exchange}"/>
+            <input type="hidden" name="symboltoken" th:value="${symboltoken}"/>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Order Type</label>
+                    <select name="ordertype" class="w-full border rounded p-2" th:value="${ordertype}">
+                        <option th:selected="${ordertype == 'MARKET'}" value="MARKET">MARKET</option>
+                        <option th:selected="${ordertype == 'LIMIT'}" value="LIMIT">LIMIT</option>
+                        <option th:selected="${ordertype == 'STOPLOSS_MARKET'}" value="STOPLOSS_MARKET">STOPLOSS_MARKET</option>
+                        <option th:selected="${ordertype == 'STOPLOSS_LIMIT'}" value="STOPLOSS_LIMIT">STOPLOSS_LIMIT</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Product Type</label>
+                    <select name="producttype" class="w-full border rounded p-2">
+                        <option th:selected="${producttype == 'INTRADAY'}" value="INTRADAY">INTRADAY</option>
+                        <option th:selected="${producttype == 'DELIVERY'}" value="DELIVERY">DELIVERY</option>
+                        <option th:selected="${producttype == 'MARGIN'}" value="MARGIN">MARGIN</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Price</label>
+                    <input type="number" step="0.01" name="price" class="w-full border rounded p-2" th:value="${price}"/>
+                    <p class="text-xs text-gray-500 mt-1">Leave blank for MARKET order.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Quantity</label>
+                    <input type="number" name="quantity" min="1" class="w-full border rounded p-2" th:value="${quantity}"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Duration</label>
+                <select name="duration" class="w-full border rounded p-2">
+                    <option th:selected="${duration == 'DAY'}" value="DAY">DAY</option>
+                    <option th:selected="${duration == 'IOC'}" value="IOC">IOC</option>
+                </select>
+            </div>
+
+            <div class="pt-4 flex justify-center gap-3">
+                <button type="submit" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600">Submit Modify</button>
+                <a href="/trading-history" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Back to History</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

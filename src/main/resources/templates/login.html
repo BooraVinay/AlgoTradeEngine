@@ -2,30 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gray-50">
+<body class="min-h-screen bg-gray-50 flex items-center justify-center">
 
-<div class="bg-white p-8 rounded shadow-md w-96">
-    <h2 class="text-2xl font-bold mb-6">Login to Trading Platform</h2>
+<div class="w-full max-w-md px-6">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h2 class="text-2xl font-semibold mb-6 text-center">Login to TradeApp</h2>
 
-    <form th:action="@{/auth/login}" method="post" class="space-y-4">
-        <div>
-            <label for="userId">Client Code (User ID)</label>
-            <input type="text" id="userId" name="userId" class="w-full border p-2 rounded" required>
+        <form th:action="@{/auth/login}" method="post" class="space-y-4">
+            <div>
+                <label for="userId" class="block text-sm font-medium text-gray-700">Client Code (User ID)</label>
+                <input id="userId" name="userId" required
+                       class="mt-1 w-full border rounded p-2 focus:ring-2 focus:ring-blue-200" />
+            </div>
+
+            <div>
+                <label for="totp" class="block text-sm font-medium text-gray-700">TOTP</label>
+                <input id="totp" name="totp" required
+                       class="mt-1 w-full border rounded p-2 focus:ring-2 focus:ring-blue-200" />
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Login</button>
+        </form>
+
+        <div th:if="${errorMessage}" class="mt-4 text-red-600 text-sm">
+            <p th:text="${errorMessage}"></p>
         </div>
-
-        <div>
-            <label for="totp">TOTP</label>
-            <input type="text" id="totp" name="totp" class="w-full border p-2 rounded" required>
-        </div>
-
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Login</button>
-    </form>
-
-    <div th:if="${errorMessage}" class="text-red-600 mt-4">
-        <p th:text="${errorMessage}"></p>
     </div>
 </div>
 

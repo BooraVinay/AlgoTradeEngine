@@ -1,68 +1,60 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>Trade Book</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-    <div class="logo font-bold text-xl">TradeApp</div>
-    <nav class="space-x-4">
-        <a href="/dashboard" class="hover:underline">Dashboard</a>
-        <a href="/place-order" class="hover:underline">Place Order</a>
-        <a href="/trading-history" class="hover:underline">Trading History</a>
-        <a href="/auth/logout" class="hover:underline">Logout</a>
-    </nav>
-</header>
-<div class="flex">
-    <aside class="w-64 bg-white shadow-md p-4">
-        <ul class="space-y-2">
-            <li><a href="/account-info" class="block hover:bg-gray-100 p-2 rounded">Account Info</a></li>
-            <li><a href="/portfolio" class="block hover:bg-gray-100 p-2 rounded">View Portfolio</a></li>
-            <li><a href="/place-order" class="block hover:bg-gray-100 p-2 rounded">Place Order</a></li>
-            <li><a href="/trading-history" class="block hover:bg-gray-100 p-2 rounded">Trading History</a></li>
-            <li><a href="/trade-book" class="block hover:bg-gray-100 p-2 rounded">Trade Book</a></li>
-        </ul>
-    </aside>
-<main class="p-6">
-    <h1 class="text-xl font-bold mb-4">Trade Book</h1>
-
-    <div th:if="${tradeBook == null}">
-        <p class="text-gray-500">No trade book data available.</p>
+<header class="bg-blue-600 text-white py-4">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+        <div class="text-xl font-bold">TradeApp</div>
+        <nav class="space-x-4 text-sm">
+            <a href="/dashboard" class="hover:underline">Dashboard</a>
+            <a href="/account-info" class="hover:underline">Account Info</a>
+            <a href="/portfolio" class="hover:underline">View Portfolio</a>
+            <a href="/place-order" class="hover:underline">Place Order</a>
+            <a href="/trading-history" class="hover:underline">Trading History</a>
+            <a href="/trade-book" class="hover:underline">Trade Book</a>
+            <a href="/alerts/today" class="hover:underline">Alerts</a>
+            <a href="/scrip/search" class="hover:underline">Search Scrip</a>
+            <a href="/auth/logout" class="hover:underline">Logout</a>
+        </nav>
     </div>
+</header>
 
-    <div th:if="${tradeBook != null}">
-        <div th:if="${tradeBook.data != null and #lists.isEmpty(tradeBook.data) == false}">
-            <table class="min-w-full bg-white">
-                <thead>
+<main class="py-12">
+    <div class="max-w-5xl mx-auto px-4">
+        <h2 class="text-2xl font-semibold mb-4">Trade Book</h2>
+
+        <div th:if="${tradeBook == null}" class="text-gray-500">No trade book data available.</div>
+
+        <div th:if="${tradeBook != null}" class="bg-white rounded shadow p-4 overflow-x-auto">
+            <table class="min-w-full table-auto">
+                <thead class="bg-gray-100">
                 <tr>
-                    <th class="p-2 text-left">Fill Time</th>
-                    <th class="p-2 text-left">Symbol</th>
-                    <th class="p-2 text-left">Qty</th>
-                    <th class="p-2 text-left">Fill Price</th>
-                    <th class="p-2 text-left">Value</th>
-                    <th class="p-2 text-left">Order ID</th>
+                    <th class="px-4 py-2">Fill Time</th>
+                    <th class="px-4 py-2">Symbol</th>
+                    <th class="px-4 py-2">Qty</th>
+                    <th class="px-4 py-2">Fill Price</th>
+                    <th class="px-4 py-2">Value</th>
+                    <th class="px-4 py-2">Order ID</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="t : ${tradeBook.data}">
-                    <td class="p-2" th:text="${t.filltime}">-</td>
-                    <td class="p-2" th:text="${t.tradingsymbol}">-</td>
-                    <td class="p-2" th:text="${t.fillsize}">-</td>
-                    <td class="p-2" th:text="${t.fillprice}">-</td>
-                    <td class="p-2" th:text="${t.tradevalue}">-</td>
-                    <td class="p-2" th:text="${t.orderid}">-</td>
+                <tr th:each="t : ${tradeBook.data}" class="hover:bg-gray-50">
+                    <td class="px-4 py-2" th:text="${t.filltime}">-</td>
+                    <td class="px-4 py-2" th:text="${t.tradingsymbol}">-</td>
+                    <td class="px-4 py-2" th:text="${t.fillsize}">-</td>
+                    <td class="px-4 py-2" th:text="${t.fillprice}">-</td>
+                    <td class="px-4 py-2" th:text="${t.tradevalue}">-</td>
+                    <td class="px-4 py-2" th:text="${t.orderid}">-</td>
                 </tr>
                 </tbody>
             </table>
         </div>
-
-        <div th:if="${tradeBook.data == null or #lists.isEmpty(tradeBook.data)}">
-            <p class="text-gray-500">No trades found.</p>
-        </div>
     </div>
 </main>
-</div>
 </body>
 </html>
