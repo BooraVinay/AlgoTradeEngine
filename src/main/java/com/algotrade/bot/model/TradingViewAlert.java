@@ -15,6 +15,8 @@ public class TradingViewAlert {
     private LocalDateTime timestamp;
     private Map<String,Object> orderResult;
     private String errorMessage;
+    private Map<String,Object> rawPayload;
+    private String symboltoken; // optional if payload includes it
 
     public TradingViewAlert() {}
 
@@ -51,4 +53,10 @@ public class TradingViewAlert {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public Map<String, Object> getRawPayload() { return rawPayload; }
+    public void setRawPayload(Map<String, Object> rawPayload) { this.rawPayload = rawPayload; }
+
+    public String getSymboltoken() { return symboltoken; }
+    public void setSymboltoken(String symboltoken) { this.symboltoken = symboltoken; }
 }

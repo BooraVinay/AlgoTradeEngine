@@ -18,8 +18,9 @@ public class TradingViewWebhookController {
     }
 
     @PostMapping("/alert")
-    public ResponseEntity<TradingViewAlert> receiveAlert(@RequestBody Map<String,Object> payload) {
+    public ResponseEntity<TradingViewAlert> receiveAlert(@RequestBody Map<String, Object> payload) {
         TradingViewAlert alert = alertService.createFromPayload(payload);
+        System.out.println("✅ Received alert from TradingView: " + payload);
         return ResponseEntity.ok(alert);
     }
 }
